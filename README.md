@@ -4,7 +4,7 @@ PHP HTTP client based on file_get_context and streams.
 ```php
 <?php
 
-$client = new \Http\Client();
+$client = new \Http\Request();
 
 $response = $client->get('http://google.com');
 
