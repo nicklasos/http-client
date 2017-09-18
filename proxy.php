@@ -1,6 +1,6 @@
 <?php
 
-if (($_SERVER['HTTP_PASSWORD'] ?? null) !== 'ProxyPassword') {
+if (($_SERVER['HTTP_PASSWORD'] ?? null) !== 'Pass') {
     http_response_code(401);
     exit();
 }
