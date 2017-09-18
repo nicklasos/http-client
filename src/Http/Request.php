@@ -26,7 +26,7 @@ namespace Http;
  */
 class Request
 {
-    public function post(string $url, array $headers = [], string $data = ''): Response
+    public function post(string $url, array $headers = [], string $data = '', array $params = []): Response
     {
         $opts = [
             'http' => [
@@ -36,10 +36,23 @@ class Request
             ],
         ];
 
-        return $this->request($url, $opts);
+        return $this->request($url, $opts, $params);
     }
 
-    public function get(string $url, array $headers = []): Response
+    public function put(string $url, array $headers = [], string $data = '', array $params = []): Response
+    {
+        $opts = [
+            'http' => [
+                'method' => 'PUT',
+                'header' => $this->headers($headers),
+                'content' => $data,
+            ],
+        ];
+
+        return $this->request($url, $opts, $params);
+    }
+
+    public function get(string $url, array $headers = [], array $params = []): Response
     {
         $opts = [
             'http' => [
@@ -48,14 +61,16 @@ class Request
             ],
         ];
 
-        return $this->request($url, $opts);
+        return $this->request($url, $opts, $params);
     }
-
-    private function request(string $url, array $opts): Response
+    
+    public function proxyGet(string $url, array $headers = [], array $params = []): Response
     {
-        $content = file_get_contents($url, false, stream_context_create($opts));
+        $proxy = array_random(config('proxy'));
 
-        return new Response($content, $http_response_header);
+        $headers['Password'] = 'ProxyPassword';
+
+        return $this->get("$proxy?url=$url", $headers, $params);
     }
 
     private function headers(array $headers): string
@@ -67,4 +82,15 @@ class Request
 
         return $result;
     }
-}
+
+    private function request(string $url, array $opts, array $params): Response
+    {
+        $opts = array_merge_recursive($opts, $params);
+
+        $opts['http']['ignore_errors'] = $opts['http']['ignore_errors'] ?? true;
+        $opts['http']['timeout'] = $opts['http']['timeout'] ?? 10;
+
+        $content = file_get_contents($url, false, stream_context_create($opts));
+
+        return new Response($content, $http_response_header);
+    }
