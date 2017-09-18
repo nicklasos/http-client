@@ -68,7 +68,7 @@ class Request
     {
         $proxy = array_random(config('proxy'));
 
-        $headers['Password'] = 'ProxyPassword';
+        $headers['Password'] = 'Pass';
 
         return $this->get("$proxy?url=$url", $headers, $params);
     }
